@@ -32,18 +32,21 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   double y = 0.0;
   Board _board = Board(6, 6, 5);
 
-  void _incrementDown(PointerEvent details) {
-    _updateLocation(details);
-  }
-
-  void _incrementUp(PointerEvent details) {
-    _updateLocation(details);
-  }
-
-  void _updateLocation(PointerEvent details) {
+  void _pointerDown(PointerEvent details) {
     setState(() {
-      x = details.position.dx;
-      y = details.position.dy;
+      _board.pointerDown(details.position.dx, details.position.dy);
+    });
+  }
+
+  void _pointerUp(PointerEvent details) {
+    setState(() {
+      _board.pointerUp(details.position.dx, details.position.dy);
+    });
+  }
+
+  void _pointerMove(PointerEvent details) {
+    setState(() {
+      _board.pointerMove(details.position.dx, details.position.dy);
     });
   }
 
@@ -51,9 +54,9 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
   Widget build(BuildContext context) {
     return Container(
       child: Listener(
-        onPointerDown: _incrementDown,
-        onPointerMove: _updateLocation,
-        onPointerUp: _incrementUp,
+        onPointerDown: _pointerDown,
+        onPointerMove: _pointerMove,
+        onPointerUp: _pointerUp,
         child: CustomPaint(
           size: Size.infinite,
           painter: MyPainter(_board),
@@ -67,15 +70,10 @@ class MyPainter extends CustomPainter {
   MyPainter(Board b) : _board = b;
 
   final Board _board;
-
   @override
   void paint(Canvas canvas, Size size) {
-    double n = math.min(size.width, size.height) / _board.width;
-    canvas.save();
-    canvas.scale(n, n);
+    _board.setSize(size);
     _board.paint(canvas);
-    canvas.restore();
-//    canvas.drawColor(const Color(0xFFFF0000), BlendMode.srcOver);
   }
 
   //Called when CustomPainter is rebuilt.
